@@ -1,4 +1,5 @@
 from django.http import HttpResponse
+from django.http import Http404
 from django.template import loader
 
 from .models import Question
@@ -12,7 +13,15 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 def detail(request, question_id):
-    return HttpResponse("You're looking at questions %s." % question_id)
+    try:
+        template = loader.get_template('polls/detail.html')
+        question = Question.objects.get(pk=question_id)
+        context = {
+            'question': question
+        }
+    except Question.DoesNotExist:
+        raise Http404('Question does not exist')
+    return HttpResponse(template.render(context, request))
 
 def results(request, question_id):
     response = "You're looking at the results of question %s."
